@@ -1,0 +1,42 @@
+name: ci
+
+# Fork-local build/test for king-kloy/ztk. Upstream (codejunkie99/ztk) only
+# runs CI on release, so PRs into upstream get no compile/test check. This
+# workflow lives on the fork's default branch and can be run against any ref
+# with `gh workflow run ci.yml --repo king-kloy/ztk --ref <branch>`, without
+# adding anything to the upstream pull request.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Zig 0.16.0
+        env:
+          ZIG_VERSION: 0.16.0
+        run: |
+          set -eu
+          case "$(uname -m)" in
+            arm64|aarch64) zig_arch=aarch64 ;;
+            x86_64) zig_arch=x86_64 ;;
+            *) echo "unsupported runner arch" >&2; exit 1 ;;
+          esac
+          archive="zig-${zig_arch}-linux-${ZIG_VERSION}"
+          curl -fsSLO "https://ziglang.org/download/${ZIG_VERSION}/${archive}.tar.xz"
+          tar -xf "${archive}.tar.xz"
+          echo "$PWD/${archive}" >> "$GITHUB_PATH"
+
+      - name: Zig version
+        run: zig version
+
+      - name: Build
+        run: zig build
+
+      - name: Test
+        run: zig build test

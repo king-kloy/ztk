@@ -1,10 +1,7 @@
 name: ci
 
-# Fork-local build/test for king-kloy/ztk. Upstream (codejunkie99/ztk) only
-# runs CI when a release is published, so PRs into upstream get no compile/test
-# check. This workflow lives on the fork and runs on any pushed branch and on
-# demand, so a branch can be verified without adding anything to an upstream
-# pull request. Trigger on demand with:
+# Fork-local build and test. Runs on every pushed branch and on demand, so a
+# branch can be verified without adding anything to a pull request:
 #   gh workflow run ci.yml --repo king-kloy/ztk --ref <branch>
 on:
   push:
